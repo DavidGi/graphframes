@@ -345,6 +345,7 @@ private[graphframes] object TwoPhase extends Logging {
         if (shouldCheckpoint && (iteration % checkpointInterval == 0)) {
           if (useLocalCheckpoints) {
             ee = ee.localCheckpoint(eager = true)
+            ee = CheckpointStatistics.dropOversized(ee, s"$logPrefix iteration $iteration")
           } else {
             val out = s"${checkpointDir.get}/$iteration"
             ee.write.parquet(out)
@@ -533,6 +534,7 @@ private[graphframes] object TwoPhase extends Logging {
         } else {
           ee = ee.checkpoint(eager = true)
         }
+        ee = CheckpointStatistics.dropOversized(ee, s"$logPrefix iteration $iteration")
       }
 
       ee.persist(intermediateStorageLevel)
